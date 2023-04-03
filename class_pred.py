@@ -1,58 +1,30 @@
+import math
 import numpy as np
-import matplotlib.pyplot as plt
 
-import keras
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, Dropout, LSTM
+from keras.models import load_model
 
-X_train, \
-Y_train, \
-X_val, \
-Y_val = np.load('X_train.npy'),\
-        np.load('Y_train.npy'),\
-        np.load('X_val.npy', allow_pickle=True),\
-        np.load('Y_val.npy', allow_pickle=True)
+classifier = load_model('classifier.h5')
 
-print("X_train shape:", X_train.shape)
-print("Y_train shape:", Y_train.shape)
-print("X_val shape:", X_val.shape)
-print("Y_val shape:", Y_val.shape)
+test_file = np.load('test_class.npy')
+
+test_X = []
+test_Y = []
+maxlen = 16
+
+if len(test_file) > maxlen:
+    file = np.array_split(test_file, (math.ceil(len(test_file) / maxlen)))
+    for f in file:
+        f = np.pad(f, [(0, maxlen - len(f)), (0, 0)], mode='constant')
+        test_X.append(f)
+elif len(test_file) < maxlen:
+    file = np.pad(test_file, [(0, maxlen - len(test_file)), (0, 0)], mode='constant')
+    test_X.append(test_file)
+else:
+    test_X.append(test_file)
 
 
+test_X = np.array(test_X)
+print(test_X.shape)
 
-print('Build model')
-classifier = Sequential()
-classifier.add(LSTM(units=128, input_shape=(16, 80), return_sequences=True))
-classifier.add(Dropout(0.2))
-classifier.add(LSTM(units=64, return_sequences=True))
-classifier.add(Dropout(0.2))
-classifier.add(Flatten())
-classifier.add(Dense(units=64, activation='relu'))
-classifier.add(Dense(units=1, activation='sigmoid'))
-classifier.compile(optimizer='adam', loss='binary_crossentropy', metrics=[keras.metrics.Recall()])
-
-print(classifier.summary())
-
-print('Train')
-cnnhistory = classifier.fit(X_train,Y_train, batch_size=32, epochs=5, validation_data=(X_val, Y_val))
-
-classifier.save('classifier.h5')
-
-result = classifier.evaluate(X_val, Y_val)
-print("validation accuracy:", result[1])
-
-plt.plot(cnnhistory.history['loss'])
-plt.plot(cnnhistory.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
-
-plt.plot(cnnhistory.history['accuracy'])
-plt.plot(cnnhistory.history['val_accuracy'])
-plt.title('model accuracy')
-plt.ylabel('acc')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
+res = round(np.mean(classifier.predict(test_X)))
+print('Predicted label:', res)

@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import keras
 from keras.models import Sequential
 from keras.layers import Dense, Flatten, Dropout, LSTM
 
@@ -21,19 +22,19 @@ print("Y_val shape:", Y_val.shape)
 
 print('Build model')
 classifier = Sequential()
-classifier.add(LSTM(units=128, input_shape=(14, 80), return_sequences=True))
+classifier.add(LSTM(units=128, input_shape=(16, 80), return_sequences=True))
 classifier.add(Dropout(0.2))
 classifier.add(LSTM(units=64, return_sequences=True))
 classifier.add(Dropout(0.2))
 classifier.add(Flatten())
 classifier.add(Dense(units=64, activation='relu'))
 classifier.add(Dense(units=1, activation='sigmoid'))
-classifier.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+classifier.compile(optimizer='adam', loss='binary_crossentropy', metrics=[keras.metrics.Recall()])
 
 print(classifier.summary())
 
 print('Train')
-cnnhistory = classifier.fit(X_train,Y_train, batch_size=32, epochs=10, validation_data=(X_val, Y_val))
+cnnhistory = classifier.fit(X_train,Y_train, batch_size=32, epochs=5, validation_data=(X_val, Y_val))
 
 classifier.save('classifier.h5')
 

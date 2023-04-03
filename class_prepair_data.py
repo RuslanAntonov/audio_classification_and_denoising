@@ -3,7 +3,7 @@ import os
 import numpy as np
 import math
 
-maxlen = 250
+maxlen = 16
 if os.path.isfile('X_train.npy') != True or os.path.isfile('Y_train.npy') != True:
     files = []
     labels = []
@@ -19,7 +19,7 @@ if os.path.isfile('X_train.npy') != True or os.path.isfile('Y_train.npy') != Tru
                 labels.append(1)
 
         if len(file) > maxlen:
-            file = np.array_split(file, (math.ceil(len(file) / maxlen)))
+            file = np.split(file, np.arange(maxlen, len(file), maxlen))
             for f in file:
                 f = np.pad(f, [(0, maxlen - len(f)), (0, 0)], mode='constant')
                 files.append(f)
@@ -52,7 +52,7 @@ if os.path.isfile('X_val.npy') != True or os.path.isfile('Y_val.npy') != True:
                 labels.append(1)
 
         if len(file) > maxlen:
-            file = np.array_split(file, (math.ceil(len(file) / maxlen)))
+            file = np.split(file, np.arange(maxlen, len(file), maxlen))
             for f in file:
                 f = np.pad(f, [(0, maxlen - len(f)), (0, 0)], mode='constant')
                 files.append(f)

@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 
-maxlen = 250
+maxlen = 16
 if os.path.isfile('X_train_den.npy') != True or os.path.isfile('Y_train_den.npy') != True:
     files = []
     labels = []
@@ -14,7 +14,7 @@ if os.path.isfile('X_train_den.npy') != True or os.path.isfile('Y_train_den.npy'
         class_name = os.path.split(os.path.realpath(os.path.join(filepath, "..\..")))[-1]
 
         if len(file) > maxlen:
-            file = np.array_split(file, (math.ceil(len(file) / maxlen)))
+            file = np.split(file, np.arange(maxlen, len(file), maxlen))
             for f in file:
                 f = np.pad(f, [(0, maxlen - len(f)), (0, 0)], mode='constant')
                 if class_name == 'noisy':
@@ -49,7 +49,7 @@ if os.path.isfile('X_val_den.npy') != True or os.path.isfile('Y_val_den.npy') !=
         class_name = os.path.split(os.path.realpath(os.path.join(filepath, "..\..")))[-1]
 
         if len(file) > maxlen:
-            file = np.array_split(file, (math.ceil(len(file) / maxlen)))
+            file = np.split(file, np.arange(maxlen, len(file), maxlen))
             for f in file:
                 f = np.pad(f, [(0, maxlen - len(f)), (0, 0)], mode='constant')
                 if class_name == 'noisy':
@@ -87,3 +87,5 @@ print("X_train shape:", X_train.shape)
 print("y_train shape:", Y_train.shape)
 print("X_test shape:", X_val.shape)
 print("y_test shape:", Y_val.shape)
+
+print(len(X_train))
